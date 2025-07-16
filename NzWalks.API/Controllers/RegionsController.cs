@@ -19,21 +19,42 @@ namespace NzWalks.API.Controllers
         public IActionResult GetAll()
         {
             var regions = dbContext.Regions.ToList();
-            return Ok(regions);
+
+            var regionsDto = new List<Model.DTO.RegionDto>();
+
+            foreach (var region in regions)
+            {
+                regionsDto.Add(new Model.DTO.RegionDto
+                {
+                    Id = region.Id,
+                    Code = region.Code,
+                    Name = region.Name,
+                    RegionImageUrl = region.RegionImageUrl
+                });
+            }
+            return Ok(regionsDto);
         }
 
         [HttpGet]
         [Route("{id:Guid}")]
         public IActionResult GetById([FromRoute] Guid id)
         {
-
             var region = dbContext.Regions.FirstOrDefault(x => x.Id == id);
 
             if (region == null)
             {
                 return NotFound();
             }
-            return Ok(region);
+
+            var regionDto = new Model.DTO.RegionDto
+            {
+                Id = region.Id,
+                Code = region.Code,
+                Name = region.Name,
+                RegionImageUrl = region.RegionImageUrl
+            };
+
+            return Ok(regionDto);
         }
     }
 }
