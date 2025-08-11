@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NzWalks.API.CustomActionFilters;
 using NzWalks.API.Data;
 using NzWalks.API.Repositories;
 
@@ -59,8 +60,10 @@ namespace NzWalks.API.Controllers
         }
 
         [HttpPost]
+        [ValidateModel]
         public async Task<IActionResult> Create([FromBody] Model.DTO.AddRegionRequestDto addRegionRequestDto)
         {
+
             if (addRegionRequestDto == null)
             {
                 return BadRequest("Region data is required.");
@@ -85,8 +88,9 @@ namespace NzWalks.API.Controllers
 
         [HttpPut]
         [Route("{id:Guid}")]
+        [ValidateModel]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] Model.DTO.UpdateRegionRequestDto updateRegionRequestDto)
-        {
+        { 
             if (updateRegionRequestDto == null)
             {
                 return BadRequest("Region data is required.");

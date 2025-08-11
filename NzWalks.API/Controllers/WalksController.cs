@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NzWalks.API.CustomActionFilters;
 using NzWalks.API.Model.DTO;
 using NzWalks.API.Repositories;
 
@@ -16,6 +17,7 @@ namespace NzWalks.API.Controllers
         }
 
         [HttpPost]
+        [ValidateModel]
         public async Task<IActionResult> Create([FromBody] AddWalksRequestDto addWalksRequestDto)
         {
             var walkDomainModel = new Model.Domain.Walk
@@ -119,6 +121,7 @@ namespace NzWalks.API.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [ValidateModel]
         public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateWalksRequestDto updateWalksRequestDto)
         {
             if (updateWalksRequestDto == null)
