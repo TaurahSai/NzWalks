@@ -32,7 +32,11 @@ namespace NzWalks.API.Repositories
             return existingEntity;
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null,params Expression<Func<T, object>>[] includes)
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null,
+            Expression<Func<T, object>>? orderBy = null,
+            bool? isAscending = true, int pageNumber = 1,
+            int pageSize = 1000, 
+            params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = dbContext.Set<T>();
 
@@ -49,7 +53,15 @@ namespace NzWalks.API.Repositories
                 query = query.Where(filter);
             }
 
-            return await query.ToListAsync();
+
+            if (orderBy != null)
+            {
+                query = (isAscending ?? true) ? query.OrderBy(orderBy) : query.OrderByDescending(orderBy);
+            }
+
+            var skip = (pageNumber - 1) * pageSize;
+
+            return await query.Skip(skip).Take(pageSize).ToListAsync();
         }
 
         public async Task<T> GetByIdAsync(Guid id, params Expression<Func<T, object>>[] includes)

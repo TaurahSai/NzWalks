@@ -62,9 +62,10 @@ namespace NzWalks.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] string? filteron, [FromQuery] string ? filterQuery)
+        public async Task<IActionResult> GetAll([FromQuery] string? filteron, [FromQuery] string ? filterQuery, [FromQuery] string? sortBy, [FromQuery] bool? isAscending, [FromQuery] int pageNumber =1, [FromQuery] int pageSize=1000)
         {
             Expression<Func<Walk, bool>>? filter = null;
+            Expression<Func<Walk, object>>? orderBy = null;
 
             if (!string.IsNullOrWhiteSpace(filteron) && !string.IsNullOrWhiteSpace(filterQuery))
             {
@@ -85,7 +86,21 @@ namespace NzWalks.API.Controllers
                 }
             }
 
-            var walksDomainModel = await walksRepository.GetAllAsync(filter, w => w.Difficulty, w => w.Region);
+            // Sorting logic
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "name":
+                        orderBy = w => w.Name;
+                        break;
+                    case "lengthinkm":
+                        orderBy = w => w.LengthInKm;
+                        break;
+                }
+            }
+
+            var walksDomainModel = await walksRepository.GetAllAsync(filter, orderBy, isAscending, pageNumber, pageSize, w => w.Difficulty, w => w.Region);
 
             var walkDtos = walksDomainModel.Select(walk => new WalkDto
             {
