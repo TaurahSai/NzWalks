@@ -32,7 +32,7 @@ namespace NzWalks.API.Repositories
             return existingEntity;
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
+        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null,params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = dbContext.Set<T>();
 
@@ -42,6 +42,11 @@ namespace NzWalks.API.Repositories
                 {
                     query = query.Include(include);
                 }
+            }
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
             }
 
             return await query.ToListAsync();

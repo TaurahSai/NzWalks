@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NzWalks.API.CustomActionFilters;
+using NzWalks.API.Model.Domain;
 using NzWalks.API.Model.DTO;
 using NzWalks.API.Repositories;
+using System.Linq.Expressions;
 
 namespace NzWalks.API.Controllers
 {
@@ -60,10 +62,31 @@ namespace NzWalks.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] string? filteron, [FromQuery] string ? filterQuery)
         {
-            var walksDomainModel = await walksRepository.GetAllAsync(w => w.Difficulty, w => w.Region);
-            //map domain model to DTO
+            Expression<Func<Walk, bool>>? filter = null;
+
+            if (!string.IsNullOrWhiteSpace(filteron) && !string.IsNullOrWhiteSpace(filterQuery))
+            {
+                switch (filteron.ToLower())
+                {
+                    case "name":
+                        filter = w => w.Name.Contains(filterQuery);
+                        break;
+                    case "description":
+                        filter = w => w.Description.Contains(filterQuery);
+                        break;
+                    case "lengthinkm":
+                        if (double.TryParse(filterQuery, out var length))
+                        {
+                            filter = w => w.LengthInKm == length;
+                        }
+                        break;
+                }
+            }
+
+            var walksDomainModel = await walksRepository.GetAllAsync(filter, w => w.Difficulty, w => w.Region);
+
             var walkDtos = walksDomainModel.Select(walk => new WalkDto
             {
                 Id = walk.Id,
